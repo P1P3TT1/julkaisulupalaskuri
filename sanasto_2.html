@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+  <title>Sanasto-laskuri</title>
+  <style>
+    /* Yleiset tyylit (vaalea teema oletuksena) */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background-color: #f5f5f5;
+      color: #333;
+      transition: background-color 0.3s, color 0.3s;
+    }
+    h1 {
+      text-align: center;
+    }
+    form {
+      background: #fff;
+      padding: 15px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      max-width: 400px;
+      margin: 2rem auto;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      transition: background 0.3s, box-shadow 0.3s, border 0.3s;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    input[type="number"],
+    select {
+      padding: 5px;
+      width: 100%;
+      box-sizing: border-box;
+      margin-top: 5px;
+    }
+    .checkbox-group {
+      margin-top: 10px;
+    }
+    button[type="submit"] {
+      width: 100%;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+      margin-top: 15px;
+      font-size: 1rem;
+    }
+    .result {
+      margin-top: 20px;
+      padding: 15px;
+      border: 1px solid #ccc;
+      background-color: #fff;
+      max-width: 400px;
+      border-radius: 5px;
+      margin-left: auto;
+      margin-right: auto;
+      text-align: center;
+    }
+    /* Teeman vaihtopainike: pienempi ja pyöreämpi */
+    #themeToggle {
+      display: inline-block;
+      padding: 0.3rem 0.8rem;
+      font-size: 0.9rem;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: background-color 0.3s, color 0.3s;
+      margin: 1rem auto;
+      background-color: #007acc;
+      color: #fff;
+    }
+    #themeToggle:hover {
+      background-color: #005fa3;
+    }
+    
+    /* Dark mode -tyylit */
+    body.dark-mode {
+      background-color: #111;
+      color: #fff;
+    }
+    body.dark-mode form {
+      background: #222;
+      border: 1px solid #444;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+    }
+    body.dark-mode input[type="number"],
+    body.dark-mode select {
+      background: #333;
+      color: #fff;
+      border: 1px solid #444;
+    }
+    body.dark-mode .result {
+      background: #222;
+      border: 1px solid #444;
+    }
+    body.dark-mode #themeToggle {
+      background-color: #fff;
+      color: #111;
+    }
+    body.dark-mode #themeToggle:hover {
+      background-color: #ddd;
+    }
+
+    /* Pienemmille näytöille */
+@media (max-width: 600px) {
+  body {
+    margin: 10px;
+  }
+  form {
+    padding: 10px;
+    max-width: 95%;
+  }
+  button[type="submit"] {
+    padding: 8px 10px;
+    font-size: 0.9rem;
+  }
+}
+
+  </style>
+</head>
+<body>
+  <!-- Teeman vaihtopainike -->
+  <div style="text-align: center;">
+    <button id="themeToggle">Vaihda tummaan teemaan</button>
+  </div>
+  
+  <h1>Sanasto-laskuri</h1>
+  <form id="calculator" onsubmit="calculatePrice(); return false;">
+    <label for="publicationType">Käyttökohde:</label>
+    <select id="publicationType" onchange="updateLabels()">
+      <option value="printed">Painettu tai digitaalinen julkaisu</option>
+      <option value="electronic">Sähköinen oppimisympäristö</option>
+    </select>
+
+    <label for="textType">Tekstilaji:</label>
+    <select id="textType" onchange="updateLabels()">
+      <option value="runous">Runous</option>
+      <option value="proosa">Proosa</option>
+    </select>
+
+    <div id="merkkimaaraGroup">
+      <label for="merkkimaara" id="merkkimaaraLabel">Merkkimäärä</label>
+      <input type="number" id="merkkimaara" value="4000" min="0" />
+    </div>
+
+    <label for="quantity" id="quantityLabel">Painosmäärä:</label>
+    <input type="number" id="quantity" value="1000" min="1" required />
+
+    <div class="checkbox-group">
+      <label>
+        <input type="checkbox" id="translatorPermit" />
+        Lupa vain suomentajan osalta (hinta puolitetaan)
+      </label>
+    </div>
+
+    <button type="submit">Laske hinta</button>
+  </form>
+
+  <div class="result" id="result"></div>
+
+  <script>
+    // Päivitetään kenttien näkyvyys ja labelit valintojen mukaan
+    function updateLabels() {
+      var publicationType = document.getElementById("publicationType").value;
+      var textType = document.getElementById("textType").value;
+      var quantityLabel = document.getElementById("quantityLabel");
+      var merkkimaaraGroup = document.getElementById("merkkimaaraGroup");
+      var merkkimaaraLabel = document.getElementById("merkkimaaraLabel");
+      var merkkimaaraInput = document.getElementById("merkkimaara");
+
+      // Päivitetään painos-/käyttäjämäärä -label käyttökohteen mukaan
+      if (publicationType === "electronic") {
+        quantityLabel.innerText = "Käyttäjämäärä:";
+      } else {
+        quantityLabel.innerText = "Painosmäärä:";
+      }
+      
+      // Näytetään merkkimääräkenttä vain, kun tekstilajina on proosa,
+      // ja asetetaan kenttä pakolliseksi, muuten poistetaan required-attribuutti.
+      if (textType === "proosa") {
+        merkkimaaraGroup.style.display = "block";
+        merkkimaaraLabel.innerText = "Merkkimäärä";
+        merkkimaaraInput.setAttribute("required", "");
+      } else {
+        merkkimaaraGroup.style.display = "none";
+        merkkimaaraInput.removeAttribute("required");
+      }
+    }
+
+    // Laskentafunktio
+    function calculatePrice() {
+      var publicationType = document.getElementById("publicationType").value;
+      var textType = document.getElementById("textType").value;
+      var merkkimaara = parseFloat(document.getElementById("merkkimaara").value) || 0;
+      var quantity = parseFloat(document.getElementById("quantity").value) || 0;
+      var translatorPermit = document.getElementById("translatorPermit").checked;
+      var price = 0;
+      
+      if (publicationType === "printed") {
+        if (textType === "runous") {
+          if (quantity <= 1000) {
+            price = 46.64;
+          } else {
+            price = 46.64 + (quantity - 1000) * 0.02;
+          }
+        } else if (textType === "proosa") {
+          var multiplier = Math.ceil(merkkimaara / 4000);
+          price = 31.8 + (quantity - 1000) * 0.01 * multiplier;
+        }
+      } else if (publicationType === "electronic") {
+        if (textType === "runous") {
+          price = 42.4 + (quantity * 0.03) + 15.9;
+        } else if (textType === "proosa") {
+          var multiplier = Math.ceil(merkkimaara / 4000);
+          price = 21.2 + (quantity * (0.02 * multiplier)) + 10.6;
+        }
+      }
+      
+      if (translatorPermit) {
+        price = price / 2;
+      }
+      
+      price = Math.round(price * 100) / 100;
+      var priceVAT = Math.round(price * 1.14 * 100) / 100;
+      
+      var priceStr = price.toFixed(2).replace(".", ",");
+      var priceVATStr = priceVAT.toFixed(2).replace(".", ",");
+      
+      document.getElementById("result").innerHTML = "<p>Hinta: " + priceStr + " €</p>" +
+                                                    "<p>Hinta + alv: " + priceVATStr + " €</p>";
+    }
+
+    // Teeman vaihtajan toiminnallisuus
+    var themeToggle = document.getElementById("themeToggle");
+    themeToggle.addEventListener("click", function() {
+      document.body.classList.toggle("dark-mode");
+      if (document.body.classList.contains("dark-mode")) {
+        themeToggle.innerText = "Vaihda vaaleaan teemaan";
+      } else {
+        themeToggle.innerText = "Vaihda tummaan teemaan";
+      }
+    });
+    
+    // Alustetaan kenttien näkyvyys sivun latautuessa
+    updateLabels();
+  </script>
+</body>
+</html>
