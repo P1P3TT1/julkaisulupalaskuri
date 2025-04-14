@@ -1,2 +1,2 @@
-Tämä laskuri on tehty Sanaston (https://www.sanasto.fi/) julkaisulupien hintojen laskemista varten.<br>
+Tämä laskuri on tehty tekijänoikeusjärjestö Sanaston (https://www.sanasto.fi/) myöntämien julkaisulupien hintojen laskemista varten.<br>
 Laskuri käyttää tällä hetkellä vuoden 2025 hintoja.
