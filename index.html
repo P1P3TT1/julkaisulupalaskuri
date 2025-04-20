@@ -7,155 +7,39 @@
   <!-- Chart.js kirjasto -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    /* Yleiset tyylit */
-    body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-      background-color: #f5f5f5;
-      color: #333;
-      transition: background-color 0.3s, color 0.3s;
-    }
-    h1, h2 {
-      text-align: center;
-    }
-    /* Laskurin ja graafien laatikot */
-    form, .tab-content {
-      background: #fff;
-      padding: 15px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      max-width: 600px;
-      margin: 1rem auto;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      transition: background 0.3s, box-shadow 0.3s, border 0.3s;
-    }
-    /* Lomakekentät */
+    body { font-family: Arial, sans-serif; margin: 20px; background-color: #f5f5f5; color: #333; transition: background-color 0.3s, color 0.3s; }
+    h1, h2 { text-align: center; }
+    form, .tab-content { background: #fff; padding: 15px; border: 1px solid #ccc; border-radius: 5px; max-width: 600px; margin: 1rem auto; box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: background 0.3s; }
     label { display: block; margin-top: 10px; font-weight: bold; }
-    input[type="number"], select {
-      padding: 5px;
-      width: 100%;
-      box-sizing: border-box;
-      margin-top: 5px;
-    }
-    .checkbox-group { margin-top: 10px; }
-    button[type="submit"] {
-      width: 100%;
-      padding: 10px;
-      border: none;
-      border-radius: 3px;
-      cursor: pointer;
-      margin-top: 15px;
-      font-size: 1rem;
-      background-color: #007acc;
-      color: #fff;
-      transition: background-color 0.3s;
-    }
-    button[type="submit"]:hover {
-      background-color: #005fa3;
-    }
-    .result {
-      margin-top: 20px;
-      padding: 15px;
-      border: 1px solid #ccc;
-      background: #fff;
-      max-width: 400px;
-      border-radius: 5px;
-      margin: 1rem auto;
-      text-align: center;
-    }
-    /* Tab-navigointi */
-    .tab-nav {
-      display: flex;
-      justify-content: center;
-      gap: 0.5rem;
-      margin-bottom: 1rem;
-    }
-    .tab-nav button {
-      padding: 0.5rem 1rem;
-      border: none;
-      background: #ddd;
-      cursor: pointer;
-      border-radius: 5px;
-      transition: background 0.3s;
-    }
-    .tab-nav button.active {
-      background: #007acc;
-      color: #fff;
-    }
-    /* Teeman vaihtopainike */
-    #themeToggle {
-      display: block;
-      margin: 0 auto 1rem;
-      padding: 0.5rem 1rem;
-      background-color: #007acc;
-      color: #fff;
-      border: none;
-      border-radius: 20px;
-      cursor: pointer;
-      font-size: 0.9rem;
-      transition: background-color 0.3s;
-    }
-    #themeToggle:hover {
-      background-color: #005fa3;
-    }
-    /* Dark mode */
-    body.dark-mode {
-      background-color: #111;
-      color: #fff;
-    }
-    body.dark-mode form,
-    body.dark-mode .tab-content {
-      background: #222;
-      border: 1px solid #444;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.5);
-    }
-    body.dark-mode input[type="number"],
-    body.dark-mode select {
-      background: #333;
-      color: #fff;
-      border: 1px solid #444;
-    }
-    body.dark-mode .result {
-      background: #222;
-      border: 1px solid #444;
-    }
-    body.dark-mode button[type="submit"] {
-      background-color: #fff;
-      color: #111;
-    }
-    body.dark-mode button[type="submit"]:hover {
-      background-color: #ddd;
-    }
-    body.dark-mode #themeToggle {
-      background-color: #fff;
-      color: #111;
-    }
-    body.dark-mode #themeToggle:hover {
-      background-color: #ddd;
-    }
-    body.dark-mode .tab-nav button {
-      background: #333;
-      color: #fff;
-    }
-    body.dark-mode .tab-nav button.active {
-      background: #005fa3;
-    }
-    /* Responsiivisuus */
-    @media (max-width: 600px) {
-      body { margin: 10px; }
-      form, .tab-content { padding: 10px; max-width: 95%; }
-      button[type="submit"], #themeToggle { padding: 0.4rem 0.8rem; font-size: 0.8rem; }
-    }
+    input[type="number"], select { padding: 5px; width: 100%; box-sizing: border-box; margin-top: 5px; }
+    button[type="submit"], #themeToggle { display: block; margin: 0.5rem auto; padding: 0.5rem 1rem; font-size: 0.9rem; border: none; border-radius: 20px; cursor: pointer; transition: background-color 0.3s; }
+    button[type="submit"] { background: #007acc; color: #fff; width: 100%; border-radius: 3px; font-size: 1rem; }
+    button[type="submit"]:hover { background: #005fa3; }
+    #themeToggle { width: auto; background: #007acc; color: #fff; }
+    #themeToggle:hover { background: #005fa3; }
+    .tab-nav { display: flex; justify-content: center; gap: 0.5rem; margin-bottom: 1rem; }
+    .tab-nav button { padding: 0.5rem 1rem; background: #ddd; color: #000; border: none; border-radius: 5px; cursor: pointer; }
+    .tab-nav button.active { background: #007acc; color: #fff; }
+    .result { margin-top: 20px; padding: 15px; border: 1px solid #ccc; background: #fff; max-width: 400px; border-radius: 5px; text-align: center; margin: 1rem auto; }
+    body.dark-mode { background: #111; color: #fff; }
+    body.dark-mode form, body.dark-mode .tab-content { background: #222; border-color: #444; }
+    body.dark-mode input, body.dark-mode select { background: #333; color: #fff; border: 1px solid #444; }
+    body.dark-mode button[type="submit"], body.dark-mode #themeToggle { background: #fff; color: #111; }
+    body.dark-mode button[type="submit"]:hover, body.dark-mode #themeToggle:hover { background: #ddd; }
+    body.dark-mode .tab-nav button { background: #333; color: #fff; }
+    body.dark-mode .tab-nav button.active { background: #005fa3; }
+    @media (max-width: 600px) { body { margin: 10px; } form, .tab-content { padding: 10px; max-width: 95%; } }
   </style>
 </head>
 <body>
   <button id="themeToggle">Vaihda tummaan teemaan</button>
-  <h1>Sanasto-laskuri ja hinnastograafit</h1>
+  <h1>Sanaston julkaisulupien hinnat</h1>
+
   <div class="tab-nav">
     <button class="active" data-tab="calculator">Laskuri</button>
     <button data-tab="charts">Graafit</button>
   </div>
-  <!-- Laskuri-välilehti -->
+
   <div id="calculatorTab" class="tab-content">
     <form id="calculator" onsubmit="calculatePrice(); return false;">
       <label for="publicationType">Käyttökohde:</label>
@@ -174,141 +58,101 @@
       </div>
       <label for="quantity" id="quantityLabel">Painosmäärä:</label>
       <input type="number" id="quantity" value="1000" min="1" required />
-      <div class="checkbox-group">
-        <label><input type="checkbox" id="translatorPermit" /> Lupa vain suomentajan osalta (hinta puolitetaan)</label>
-      </div>
+      <label><input type="checkbox" id="translatorPermit" /> Lupa vain suomentajan osalta (hinta puolitetaan)</label>
       <button type="submit">Laske hinta</button>
     </form>
     <div class="result" id="result"></div>
   </div>
-  <!-- Graafit-välilehti -->
+
   <div id="chartsTab" class="tab-content" style="display:none;">
-    <div style="text-align:center; margin-bottom:1rem;">
-      <p style="text-align:center; font-size:0.9rem; color:#666;">Graafit esittävät hinnat painettuun tai digitaaliseen julkaisuun.</p>
-      <label><input type="checkbox" id="vatToggle" /> Näytä hinnat arvonlisäverolla (14 %)</label>
-    </div>
+    <p style="text-align:center; font-size:0.9rem; color:#666;">Graafit esittävät hinnat painettuun tai digitaaliseen julkaisuun.</p>
+    <label for="chartQuantity">Painosmäärä:</label>
+    <input type="number" id="chartQuantity" value="1000" min="1" step="100" />
+    <label><input type="checkbox" id="vatToggle" /> Näytä hinnat arvonlisäverolla (14 %)</label>
+
     <h2>Runous: hinta vs painosmäärä</h2>
     <canvas id="runousChart"></canvas>
+
     <h2>Proosa: hinta vs merkkimäärä</h2>
-    <label for="proosaQuantityChart">Painosmäärä:</label>
-    <input type="number" id="proosaQuantityChart" value="1000" min="1" step="100" />
     <canvas id="proosaChart"></canvas>
   </div>
+
   <script>
-    // Välilehtien vaihto
     function switchTab(tab) {
-      document.querySelectorAll('.tab-nav button').forEach(btn => {
-        btn.classList.toggle('active', btn.getAttribute('data-tab') === tab);
-      });
-      document.getElementById('calculatorTab').style.display = (tab === 'calculator') ? 'block' : 'none';
-      document.getElementById('chartsTab').style.display = (tab === 'charts') ? 'block' : 'none';
+      document.querySelectorAll('.tab-nav button').forEach(btn => btn.classList.toggle('active', btn.dataset.tab===tab));
+      document.getElementById('calculatorTab').style.display = tab==='calculator'?'block':'none';
+      document.getElementById('chartsTab').style.display    = tab==='charts'?'block':'none';
     }
-    // Päivitä labelit
     function updateLabels() {
-      const pubType = document.getElementById('publicationType').value;
-      const textType = document.getElementById('textType').value;
-      const qtyLabel = document.getElementById('quantityLabel');
-      const merkkGroup = document.getElementById('merkkimaaraGroup');
-      const merkkInput = document.getElementById('merkkimaara');
-      qtyLabel.innerText = (pubType === 'electronic') ? 'Käyttäjämäärä:' : 'Painosmäärä:';
-      if (textType === 'proosa') {
-        merkkGroup.style.display = 'block';
-        merkkInput.required = true;
-      } else {
-        merkkGroup.style.display = 'none';
-        merkkInput.required = false;
-      }
+      const pub = document.getElementById('publicationType').value;
+      const txt = document.getElementById('textType').value;
+      document.getElementById('quantityLabel').innerText = pub==='electronic'?'Käyttäjämäärä:':'Painosmäärä:';
+      const merkk = document.getElementById('merkkimaara');
+      merkk.required = (txt==='proosa');
+      document.getElementById('merkkimaaraGroup').style.display = (txt==='proosa')?'block':'none';
     }
-    // Laskentafunktio
     function calculatePrice() {
-      const pubType = document.getElementById('publicationType').value;
-      const textType = document.getElementById('textType').value;
-      const merkk = parseFloat(document.getElementById('merkkimaara').value) || 0;
-      const qty = parseFloat(document.getElementById('quantity').value) || 0;
-      const translator = document.getElementById('translatorPermit').checked;
-      let price = 0;
-      if (pubType === 'printed') {
-        if (textType === 'runous') {
-          price = qty <= 1000 ? 46.64 : 46.64 + (qty - 1000) * 0.02;
-        } else {
-          const m = Math.ceil(merkk / 4000);
-          price = 31.8 + (qty - 1000) * 0.01 * m;
-        }
+      const pub = document.getElementById('publicationType').value;
+      const txt = document.getElementById('textType').value;
+      const mer = parseFloat(document.getElementById('merkkimaara').value)||0;
+      let qty = parseFloat(document.getElementById('quantity').value)||0;
+      if(txt==='proosa') qty = Math.max(qty,1000);
+      let p;
+      if(pub==='printed') {
+        p = (txt==='runous')
+          ? (qty<=1000?46.64:(46.64+(qty-1000)*0.02))
+          : (31.8 + (qty-1000)*0.01*Math.ceil(mer/4000));
       } else {
-        if (textType === 'runous') {
-          price = 42.4 + qty * 0.03 + 15.9;
-        } else {
-          const m2 = Math.ceil(merkk / 4000);
-          price = 21.2 + qty * (0.02 * m2) + 10.6;
-        }
+        p = (txt==='runous')
+          ? (42.4 + qty*0.03 + 15.9)
+          : (21.2 + qty*(0.02*Math.ceil(mer/4000)) + 10.6);
       }
-      if (translator) price /= 2;
-      price = Math.round(price * 100) / 100;
-      const priceVAT = Math.round(price * 1.14 * 100) / 100;
+      if(document.getElementById('translatorPermit').checked) p /= 2;
+      p = Math.round(p*100)/100;
+      const pvat = Math.round(p*1.14*100)/100;
       document.getElementById('result').innerHTML =
-        `<p>Hinta: ${price.toFixed(2).replace('.', ',')} €</p>` +
-        `<p>Hinta + alv: ${priceVAT.toFixed(2).replace('.', ',')} €</p>`;
+        `<p>Hinta: ${p.toFixed(2).replace('.',',')} €</p>` +
+        `<p>Hinta + alv: ${pvat.toFixed(2).replace('.',',')} €</p>`;
     }
-    // Staattinen hinta graafeille
-    function calcPrintedPrice(type, qty, merkk) {
-      if (type === 'proosa') qty = Math.max(qty, 1000);
-      let p = 0;
-      if (type === 'runous') {
-        p = qty <= 1000 ? 46.64 : 46.64 + (qty - 1000) * 0.02;
-      } else {
-        const factor = Math.ceil(merkk / 4000);
-        p = 31.8 + (qty - 1000) * 0.01 * factor;
-      }
-      return Math.round(p * 100) / 100;
+    function calc(type, qty, mer) {
+      if(type==='proosa') qty = Math.max(qty,1000);
+      const base = (type==='runous')
+        ? (qty<=1000?46.64:(46.64+(qty-1000)*0.02))
+        : (31.8 + (qty-1000)*0.01*Math.ceil(mer/4000));
+      return Math.round(base*100)/100;
     }
-    // Päivitä graafit
-    let runousChart, proosaChart;
-    const runousQtys = [0, 500, 1000, 1500, 2000, 2500, 3000, 3500, 4000];
-    const merkkArray = [1000, 2000, 4000, 6000, 8000, 10000, 12000, 16000];
+    let runChart, proChart;
+    const runQ=[0,500,1000,1500,2000,2500,3000,3500,4000];
+    const merThresholds=[4000,8000,12000,16000];
     function updateCharts() {
+      const qty = parseInt(document.getElementById('chartQuantity').value,10)||1000;
       const withVat = document.getElementById('vatToggle').checked;
+      const step = 1000;
+      const xMin = Math.max(0, qty - 2*step);
+      const xMax = qty + 2*step;
       // Runous
-      const runPrices = runousQtys.map(q => {
-        const base = calcPrintedPrice('runous', q, 0);
-        return withVat ? Math.round(base * 1.14 * 100) / 100 : base;
-      });
-      const rCtx = document.getElementById('runousChart').getContext('2d');
-      if (runousChart) runousChart.destroy();
-      runousChart = new Chart(rCtx, {
-        type: 'line',
-        data: { labels: runousQtys, datasets: [{ label: withVat ? 'Runous (alv)' : 'Runous', data: runPrices, fill: false }] },
-        options: { scales: { x: { title: { display: true, text: 'Painosmäärä' } }, y: { title: { display: true, text: 'Hinta (€)' } } } }
-      });
-      // Proosa
-      const qty = parseInt(document.getElementById('proosaQuantityChart').value, 10) || 1000;
-      const proPrices = merkkArray.map(m => {
-        const base = calcPrintedPrice('proosa', qty, m);
-        return withVat ? Math.round(base * 1.14 * 100) / 100 : base;
-      });
-      const pCtx = document.getElementById('proosaChart').getContext('2d');
-      if (proosaChart) proosaChart.destroy();
-      proosaChart = new Chart(pCtx, {
-        type: 'line',
-        data: { labels: merkkArray, datasets: [{ label: withVat ? `Proosa ${qty} (alv)` : `Proosa ${qty}`, data: proPrices, fill: false }] },
-        options: { scales: { x: { title: { display: true, text: 'Merkkimäärä' } }, y: { title: { display: true, text: 'Hinta (€)' } } } }
-      });
+      const runValues=[];
+      for(let v=xMin; v<=xMax; v+=step) runValues.push(v);
+      const runData = runValues.map(q => ({
+        x:q,
+        y:withVat?Math.round(calc('runous',q,0)*1.14*100)/100:calc('runous',q,0)
+      }));
+      const rCtx=document.getElementById('runousChart').getContext('2d'); if(runChart) runChart.destroy();
+      runChart=new Chart(rCtx,{type:'line',data:{datasets:[{label:withVat?'Runous (alv)':'Runous',data:runData,fill:false,borderWidth:2}]},options:{scales:{x:{type:'linear',title:{display:true,text:'Painosmäärä'},min:xMin,max:xMax,ticks:{stepSize:step}},y:{title:{display:true,text:'Hinta (€)'}}}}});
+      // Proosa portaikkona
+      const maxMer=merThresholds[merThresholds.length-1];
+      const proValues=[];
+      for(let v=0; v<=maxMer; v+=step) {
+        // y arvona aina kunkin threshold / 4000 kerroin
+        const factor=Math.ceil(v/4000);
+        let price = 31.8 + (qty-1000)*0.01*factor;
+        if(withVat) price = Math.round(price*1.14*100)/100;
+        proValues.push({x:v,y:Math.round(price*100)/100});
+      }
+      const pCtx=document.getElementById('proosaChart').getContext('2d'); if(proChart) proChart.destroy();
+      proChart=new Chart(pCtx,{type:'line',data:{datasets:[{label:withVat?`Proosa ${qty} (alv)`: `Proosa ${qty}`,data:proValues,fill:false,borderWidth:2,stepped:true}]},options:{scales:{x:{type:'linear',title:{display:true,text:'Merkkimäärä'},min:0,max:maxMer,ticks:{stepSize:step}},y:{title:{display:true,text:'Hinta (€)'}}}}});
     }
-    // Alustus DOMContentLoaded
-    window.addEventListener('DOMContentLoaded', () => {
-      updateLabels();
-      switchTab('calculator');
-      updateCharts();
-      document.querySelectorAll('.tab-nav button').forEach(btn => btn.addEventListener('click', () => switchTab(btn.getAttribute('data-tab'))));
-      document.getElementById('themeToggle').addEventListener('click', () => {
-        document.body.classList.toggle('dark-mode');
-        document.getElementById('themeToggle').innerText = document.body.classList.contains('dark-mode') ? 'Vaihda vaaleaan teemaan' : 'Vaihda tummaan teemaan';
-      });
-      document.getElementById('vatToggle').addEventListener('change', updateCharts);
-      document.getElementById('proosaQuantityChart').addEventListener('input', updateCharts);
-      document.getElementById('publicationType').addEventListener('change', updateLabels);
-      document.getElementById('textType').addEventListener('change', updateLabels);
-      document.getElementById('calculator').addEventListener('submit', calculatePrice);
-    });
+    window.addEventListener('DOMContentLoaded',()=>{updateLabels();switchTab('calculator');document.querySelectorAll('.tab-nav button').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.tab)));document.getElementById('themeToggle').addEventListener('click',()=>{document.body.classList.toggle('dark-mode');document.getElementById('themeToggle').innerText=document.body.classList.contains('dark-mode')?'Vaihda vaaleaan teemaan':'Vaihda tummaan teemaan';});document.getElementById('vatToggle').addEventListener('change',updateCharts);document.getElementById('chartQuantity').addEventListener('input',updateCharts);document.getElementById('publicationType').addEventListener('change',updateLabels);document.getElementById('textType').addEventListener('change',updateLabels);document.getElementById('calculator').addEventListener('submit',calculatePrice);updateCharts();});
   </script>
 </body>
 </html>
