@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Sanaston julkaisulupien hinnat</title>
+  <title>Sanasto-laskuri ja hinnastograafit</title>
   <!-- Chart.js kirjasto -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
@@ -34,7 +34,7 @@
 </head>
 <body>
   <button id="themeToggle">Vaihda tummaan teemaan</button>
-  <h1>Sanaston julkaisulupien hinnat</h1>
+  <h1>Sanasto-laskuri ja hinnastograafit</h1>
 
   <div class="tab-nav">
     <button class="active" data-tab="calculator">Laskuri</button>
@@ -80,80 +80,107 @@
 
   <script>
     function switchTab(tab) {
-      document.querySelectorAll('.tab-nav button').forEach(btn => btn.classList.toggle('active', btn.dataset.tab===tab));
-      document.getElementById('calculatorTab').style.display = tab==='calculator'?'block':'none';
-      document.getElementById('chartsTab').style.display    = tab==='charts'?'block':'none';
+      document.querySelectorAll('.tab-nav button').forEach(btn => btn.classList.toggle('active', btn.dataset.tab === tab));
+      document.getElementById('calculatorTab').style.display = tab === 'calculator' ? 'block' : 'none';
+      document.getElementById('chartsTab').style.display = tab === 'charts' ? 'block' : 'none';
     }
     function updateLabels() {
       const pub = document.getElementById('publicationType').value;
       const txt = document.getElementById('textType').value;
-      document.getElementById('quantityLabel').innerText = pub==='electronic'?'Käyttäjämäärä:':'Painosmäärä:';
+      document.getElementById('quantityLabel').innerText = pub === 'electronic' ? 'Käyttäjämäärä:' : 'Painosmäärä:';
       const merkk = document.getElementById('merkkimaara');
-      merkk.required = (txt==='proosa');
-      document.getElementById('merkkimaaraGroup').style.display = (txt==='proosa')?'block':'none';
+      merkk.required = txt === 'proosa';
+      document.getElementById('merkkimaaraGroup').style.display = txt === 'proosa' ? 'block' : 'none';
     }
     function calculatePrice() {
       const pub = document.getElementById('publicationType').value;
       const txt = document.getElementById('textType').value;
-      const mer = parseFloat(document.getElementById('merkkimaara').value)||0;
-      let qty = parseFloat(document.getElementById('quantity').value)||0;
-      if(txt==='proosa') qty = Math.max(qty,1000);
+      const mer = parseFloat(document.getElementById('merkkimaara').value) || 0;
+      let qty = parseFloat(document.getElementById('quantity').value) || 0;
+      if (txt === 'proosa') qty = Math.max(qty, 1000);
       let p;
-      if(pub==='printed') {
-        p = (txt==='runous')
-          ? (qty<=1000?46.64:(46.64+(qty-1000)*0.02))
-          : (31.8 + (qty-1000)*0.01*Math.ceil(mer/4000));
+      if (pub === 'printed') {
+        if (txt === 'runous') {
+          p = qty <= 1000 ? 46.64 : 46.64 + (qty - 1000) * 0.02;
+        } else {
+          const factor = Math.ceil(mer / 4000);
+          const base = 31.8 + Math.max(0, qty - 1000) * 0.01;
+          p = base * factor;
+        }
       } else {
-        p = (txt==='runous')
-          ? (42.4 + qty*0.03 + 15.9)
-          : (21.2 + qty*(0.02*Math.ceil(mer/4000)) + 10.6);
+        if (txt === 'runous') {
+          p = 42.4 + qty * 0.03 + 15.9;
+        } else {
+          const factor = Math.ceil(mer / 4000);
+          const base = 21.2 + qty * 0.02 + 10.6;
+          p = 21.2 + qty * 0.02 * factor + 10.6;
+        }
       }
-      if(document.getElementById('translatorPermit').checked) p /= 2;
-      p = Math.round(p*100)/100;
-      const pvat = Math.round(p*1.14*100)/100;
-      document.getElementById('result').innerHTML =
-        `<p>Hinta: ${p.toFixed(2).replace('.',',')} €</p>` +
-        `<p>Hinta + alv: ${pvat.toFixed(2).replace('.',',')} €</p>`;
+      if (document.getElementById('translatorPermit').checked) p /= 2;
+      p = Math.round(p * 100) / 100;
+      const pvat = Math.round(p * 1.14 * 100) / 100;
+      document.getElementById('result').innerHTML = `<p>Hinta: ${p.toFixed(2).replace('.', ',')} €</p><p>Hinta + alv: ${pvat.toFixed(2).replace('.', ',')} €</p>`;
     }
     function calc(type, qty, mer) {
-      if(type==='proosa') qty = Math.max(qty,1000);
-      const base = (type==='runous')
-        ? (qty<=1000?46.64:(46.64+(qty-1000)*0.02))
-        : (31.8 + (qty-1000)*0.01*Math.ceil(mer/4000));
-      return Math.round(base*100)/100;
+      if (type === 'proosa') qty = Math.max(qty, 1000);
+      const base = type === 'runous' ? (qty <= 1000 ? 46.64 : 46.64 + (qty - 1000) * 0.02) : (31.8 + Math.max(0, qty - 1000) * 0.01);
+      return Math.round(base * 100) / 100;
     }
     let runChart, proChart;
-    const runQ=[0,500,1000,1500,2000,2500,3000,3500,4000];
-    const merThresholds=[4000,8000,12000,16000];
+    const runQ = [0, 500, 1000, 1500, 2000, 2500, 3000, 3500, 4000];
+    const merThresholds = [4000, 8000, 12000, 16000];
     function updateCharts() {
-      const qty = parseInt(document.getElementById('chartQuantity').value,10)||1000;
+      const qty = parseInt(document.getElementById('chartQuantity').value, 10) || 1000;
       const withVat = document.getElementById('vatToggle').checked;
       const step = 1000;
-      const xMin = Math.max(0, qty - 2*step);
-      const xMax = qty + 2*step;
       // Runous
-      const runValues=[];
-      for(let v=xMin; v<=xMax; v+=step) runValues.push(v);
-      const runData = runValues.map(q => ({
-        x:q,
-        y:withVat?Math.round(calc('runous',q,0)*1.14*100)/100:calc('runous',q,0)
-      }));
-      const rCtx=document.getElementById('runousChart').getContext('2d'); if(runChart) runChart.destroy();
-      runChart=new Chart(rCtx,{type:'line',data:{datasets:[{label:withVat?'Runous (alv)':'Runous',data:runData,fill:false,borderWidth:2}]},options:{scales:{x:{type:'linear',title:{display:true,text:'Painosmäärä'},min:xMin,max:xMax,ticks:{stepSize:step}},y:{title:{display:true,text:'Hinta (€)'}}}}});
-      // Proosa portaikkona
-      const maxMer=merThresholds[merThresholds.length-1];
-      const proValues=[];
-      for(let v=0; v<=maxMer; v+=step) {
-        // y arvona aina kunkin threshold / 4000 kerroin
-        const factor=Math.ceil(v/4000);
-        let price = 31.8 + (qty-1000)*0.01*factor;
-        if(withVat) price = Math.round(price*1.14*100)/100;
-        proValues.push({x:v,y:Math.round(price*100)/100});
+      const xMin = Math.max(0, qty - 2 * step);
+      const xMax = qty + 2 * step;
+      const runData = [];
+      for (let v = xMin; v <= xMax; v += step) {
+        let price = calc('runous', v, 0);
+        if (withVat) price = Math.round(price * 1.14 * 100) / 100;
+        runData.push({ x: v, y: price });
       }
-      const pCtx=document.getElementById('proosaChart').getContext('2d'); if(proChart) proChart.destroy();
-      proChart=new Chart(pCtx,{type:'line',data:{datasets:[{label:withVat?`Proosa ${qty} (alv)`: `Proosa ${qty}`,data:proValues,fill:false,borderWidth:2,stepped:true}]},options:{scales:{x:{type:'linear',title:{display:true,text:'Merkkimäärä'},min:0,max:maxMer,ticks:{stepSize:step}},y:{title:{display:true,text:'Hinta (€)'}}}}});
+      const rCtx = document.getElementById('runousChart').getContext('2d');
+      if (runChart) runChart.destroy();
+      runChart = new Chart(rCtx, {
+        type: 'line',
+        data: { datasets: [{ label: withVat ? 'Runous (alv)' : 'Runous', data: runData, fill: false, borderWidth: 2 }] },
+        options: { scales: { x: { type: 'linear', title: { display: true, text: 'Painosmäärä' }, min: xMin, max: xMax, ticks: { stepSize: step } }, y: { title: { display: true, text: 'Hinta (€)' } } } }
+      });
+      // Proosa portaikkona
+      const thresholds = [0, 4000, 8000, 12000, 16000];
+      const baseRate = 31.8;
+      const extraRate = 0.01;
+      const proData = [];
+      thresholds.forEach(t => {
+        // hinta juuri rajalla
+        const factor = Math.max(1, Math.ceil(t / 4000));
+        let price = baseRate + Math.max(0, qty - 1000) * extraRate;
+        price *= factor;
+        if (withVat) price = Math.round(price * 1.14 * 100) / 100;
+        proData.push({ x: t, y: price });
+        // hinta heti rajan jälkeen
+        const t1 = t + 1;
+        if (t1 <= thresholds[thresholds.length - 1]) {
+          const factor1 = Math.max(1, Math.ceil(t1 / 4000));
+          let price1 = baseRate + Math.max(0, qty - 1000) * extraRate;
+          price1 *= factor1;
+          if (withVat) price1 = Math.round(price1 * 1.14 * 100) / 100;
+          proData.push({ x: t1, y: price1 });
+        }
+      });
+      const pCtx = document.getElementById('proosaChart').getContext('2d');
+      if (proChart) proChart.destroy();
+      proChart = new Chart(pCtx, {
+        type: 'line',
+        data: { datasets: [{ label: withVat ? `Proosa ${qty} (alv)` : `Proosa ${qty}`, data: proData, fill: false, borderWidth: 2, stepped: true }] },
+        options: { scales: { x: { type: 'linear', title: { display: true, text: 'Merkkimäärä' }, min: 0, max: thresholds[thresholds.length - 1], ticks: { stepSize: step } }, y: { title: { display: true, text: 'Hinta (€)' } } } }
+      });
     }
-    window.addEventListener('DOMContentLoaded',()=>{updateLabels();switchTab('calculator');document.querySelectorAll('.tab-nav button').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.tab)));document.getElementById('themeToggle').addEventListener('click',()=>{document.body.classList.toggle('dark-mode');document.getElementById('themeToggle').innerText=document.body.classList.contains('dark-mode')?'Vaihda vaaleaan teemaan':'Vaihda tummaan teemaan';});document.getElementById('vatToggle').addEventListener('change',updateCharts);document.getElementById('chartQuantity').addEventListener('input',updateCharts);document.getElementById('publicationType').addEventListener('change',updateLabels);document.getElementById('textType').addEventListener('change',updateLabels);document.getElementById('calculator').addEventListener('submit',calculatePrice);updateCharts();});
+
+    window.addEventListener('DOMContentLoaded', () => { updateLabels(); switchTab('calculator'); document.querySelectorAll('.tab-nav button').forEach(b => b.addEventListener('click', () => switchTab(b.dataset.tab))); document.getElementById('themeToggle').addEventListener('click', () => { document.body.classList.toggle('dark-mode'); document.getElementById('themeToggle').innerText = document.body.classList.contains('dark-mode') ? 'Vaihda vaaleaan teemaan' : 'Vaihda tummaan teemaan'; }); document.getElementById('vatToggle').addEventListener('change', updateCharts); document.getElementById('chartQuantity').addEventListener('input', updateCharts); document.getElementById('publicationType').addEventListener('change', updateLabels); document.getElementById('textType').addEventListener('change', updateLabels); document.getElementById('calculator').addEventListener('submit', calculatePrice); updateCharts(); });
   </script>
 </body>
 </html>
